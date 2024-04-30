@@ -5,25 +5,30 @@ public class Portal : MonoBehaviour
 {
     [SerializeField] private Portal _destination;
 
-    private static Dictionary<PlayerController, float> _cooldowns = new();
+    private static Dictionary<Rigidbody2D, float> _cooldowns = new();
 
     private void Update()
     {
+        Rigidbody2D[] allRB2Ds = FindObjectsOfType<Rigidbody2D>();
 
+        foreach (Rigidbody2D rb2D in allRB2Ds)
+        {
+            _cooldowns[rb2D] -= Time.deltaTime;
+        }
     }
 
     private void OnTriggerEnter2D(Collider2D collision)
     {
-        if (collision.TryGetComponent(out PlayerController playerController))
+        if (collision.TryGetComponent(out Rigidbody2D rb2D))
         {
-            if (!_cooldowns.ContainsKey(playerController))
-                _cooldowns.Add(playerController, 0);
+            if (!_cooldowns.ContainsKey(rb2D))
+                _cooldowns.Add(rb2D, 0);
 
-            if (_cooldowns[playerController] > 0)
+            if (_cooldowns[rb2D] > 0)
                 return;
 
-            playerController.transform.position = _destination.transform.position;
-            _cooldowns[playerController] = 1;
+            rb2D.transform.position = _destination.transform.position;
+            _cooldowns[rb2D] = 1;
         }
     }
 
